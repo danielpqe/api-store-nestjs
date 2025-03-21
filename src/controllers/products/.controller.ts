@@ -13,11 +13,13 @@ import {
   Req,
   Provider,
   Inject,
+  // ParseIntPipe,
 } from '@nestjs/common';
-
+import { ParseIntPipe } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { ProductsService } from '../../services/products/.service';
 import { Product } from 'src/entities/product.entity';
+import { CreateProductDto, updateProductDto } from 'src/dto/products.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -37,9 +39,9 @@ export class ProductsController {
   getProducts(
     // @Res() response: Response,
     // @Req() Request: Request,
-    @Param('id') id: number,
-  ): Product | undefined {
-    return this.productService.getOneProduct(+id);
+    @Param('id', ParseIntPipe) id: number,
+  ): Product | null {
+    return this.productService.getOneProduct(id);
     // return response.status(HttpStatus.ACCEPTED).send({
     //   message: 'Product found',
     //   id,
@@ -51,7 +53,10 @@ export class ProductsController {
   }
 
   @Post()
-  createProduct(@Body() payload: any): any {
+  createProduct(@Body() payload: CreateProductDto): {
+    message: string;
+    payload: Product;
+  } {
     const { name, description, price, stock, image } = payload;
     return {
       message: 'post product',
@@ -62,8 +67,8 @@ export class ProductsController {
   @Put(':productId')
   updateProduct(
     @Param('productId') productId: number,
-    @Body() payload: any,
-  ): any {
+    @Body() payload: updateProductDto,
+  ): { message: string; payload: Product } {
     const { name, description, price, stock, image } = payload;
     return {
       message: 'update product',
@@ -72,7 +77,10 @@ export class ProductsController {
   }
 
   @Delete(':productId')
-  deleteProduct(@Param('productId') productId: number): any {
+  deleteProduct(@Param('productId') productId: number): {
+    message: string;
+    id: number;
+  } {
     return { message: 'delete product', id: productId };
   }
 }
